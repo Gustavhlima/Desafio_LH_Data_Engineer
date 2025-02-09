@@ -1,0 +1,31 @@
+# The main job for desafio_lh.
+resources:
+  jobs:
+    desafio_lh_job:
+      name: desafio_lh_job
+      
+      trigger:
+        # Run this job every day, exactly one day from the last run; see https://docs.databricks.com/api/workspace/jobs/create#trigger
+        pause_status: PAUSED
+        periodic:
+          interval: 1
+          unit: DAYS
+
+      email_notifications:
+        on_failure:
+          - gustavo.lima@indicium.tech
+      
+      tasks:
+        - task_key: mssql_to_raw
+          existing_cluster_id: "0114-120134-85ri2w59"
+          notebook_task:
+            notebook_path: ../src/mssql_to_raw.ipynb
+
+        - task_key: raw_to_stg
+          depends_on:
+            - task_key: mssql_to_raw
+          existing_cluster_id: "0114-120134-85ri2w59"
+          notebook_task:
+            notebook_path: ../src/raw_to_stg.ipynb      
+
+      

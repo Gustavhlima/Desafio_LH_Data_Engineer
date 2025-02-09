@@ -1,0 +1,18 @@
+.databricks/
+build/
+dist/
+__pycache__/
+*.egg-info
+.venv/
+venv/
+scratch/**
+!scratch/README.md
+.env
+# Terraform
+.terraform/*
+*/.terraform/*
+.terraform
+terraform.tfstate*
+**.terraform.lock.hcl
+**.env
+.vscode
