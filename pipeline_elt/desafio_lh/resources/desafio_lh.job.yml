@@ -10,7 +10,7 @@ resources:
         periodic:
           interval: 1
           unit: DAYS
-
+    
       email_notifications:
         on_failure:
           - gustavo.lima@indicium.tech

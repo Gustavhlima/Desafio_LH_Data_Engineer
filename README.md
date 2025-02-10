@@ -12,7 +12,7 @@ The project involves creating infrastructure in Databricks using Terraform to ex
   - [Extraction](#extraction-mssql_to_raw)
   - [Transformation](#transformation-raw_to_stg)
 - [Job Execution](#job-execution)
-- [Conclusion](#conclusion)
+- [Final Considerations](#final-considerations)
 
 ## Setting Up the Environment
 Installations followed the official documentation for each tool:
@@ -24,16 +24,13 @@ Installations followed the official documentation for each tool:
 Additionally, we used the Databricks extension in VSCode to facilitate connection and interaction with the platform. All activities were performed in a Windows + WSL environment.
 
 ## Infrastructure
-Infrastructure was created using Terraform. Configurations included:
+The infrastructure was created using Terraform. It includes:
 
-- Raw and stg catalogs and their respective schemas.
-- Sensitive variable configuration in the `.env` file.
-- Connection to Databricks on Azure using a platform-generated token.
+- Raw and STG catalogs with their respective schemas.
+- Configuration of sensitive variables in the `.env` file.
+- Connection to Databricks on Azure using a token generated on the platform.
 
-Key files include:
-
-- `main.tf`: Defines the resources to be created.
-- `variables.tf`: Defines the variables used in the project.
+Below is the architecture diagram for this project:
 
 ![Architecture Diagram](desafio_lh_arquitetura.drawio.png)
 
@@ -53,17 +50,44 @@ Development involved two main notebooks created in the `src` folder:
 ### Extraction [mssql_to_raw]
 Each notebook cell performs a specific task:
 
-1. **Spark Session Configuration:** Creates the Spark session for executing operations.
-2. **MSSQL Database Connection:** Configures the JDBC URL and connection properties.
-3. **Reading and Writing:** Extracts tables from the MSSQL database and writes them to the Databricks raw catalog.
+1. **Spark Session Configuration:**
+   - Initializes the Spark session for executing data operations.
+
+2. **Loading Secrets and Connection Parameters:**
+   - Fetches database credentials from Databricks Secrets.
+   - Configures the JDBC connection URL to the MSSQL database.
+
+3. **Fetching Table Names Dynamically:**
+   - Retrieves the list of tables dynamically using SQL queries.
+
+4. **Extracting and Writing Tables to RAW Catalog:**
+   - Iterates over tables and loads data from MSSQL into the RAW catalog in Databricks.
+   - Uses Delta format for optimized storage and querying.
+
+5. **Validation and Logging:**
+   - Ensures extracted data is stored correctly.
+   - Logs completion messages for each table.
 
 ### Transformation [raw_to_stg]
 Each notebook cell performs a specific task:
 
-1. **Loading Metadata:** Reads the `transformations.yml` file for transformation details.
-2. **Transformation Function:** Applies snake_case rules and casts defined in the YAML file.
-3. **Processing XML Columns:** Expands XML columns into separate columns based on their values.
-4. **Validation:** Checks if tables were correctly loaded into the stg catalog.
+1. **Loading Metadata from YAML:**
+   - Reads the `transformations.yml` file to determine column transformations.
+
+2. **Applying Data Transformations:**
+   - Casts column types according to YAML specifications.
+   - Renames columns to `snake_case` format.
+   - Expands XML columns into separate structured fields when applicable.
+
+3. **Handling XML Fields for Store Table:**
+   - Extracts nested XML fields and converts them into separate columns.
+   - Uses XPath expressions to parse values within the XML structure.
+
+4. **Writing Data to STG Catalog:**
+   - Writes the transformed data into the STG catalog in Delta format.
+
+5. **Validation and Final Check:**
+   - Ensures that transformed tables are successfully saved and accessible.
 
 ## Job Execution
 Jobs were configured and executed using Databricks Bundles. During development, we used the command:
@@ -78,5 +102,5 @@ After validations, the production environment was configured with:
 databricks bundle deploy -t prod
 ```
 
-## Conclusion
-The project met the challenge requirements, demonstrating technical skills in setting up infrastructure, developing data pipelines, and automating processes in Databricks. This was an opportunity to consolidate knowledge gained during the Lighthouse program.
+## Final Considerations
+This project successfully met the challenge requirements, demonstrating technical skills in setting up infrastructure, developing data pipelines, and automating processes in Databricks. The structured approach ensured efficiency in data extraction, transformation, and validation. The use of Terraform, Databricks, and automation techniques allowed the creation of a scalable and well-documented data pipeline that can be extended for future enhancements.
